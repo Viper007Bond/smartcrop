@@ -1,0 +1,29 @@
+{
+  "name":        "viper007bond/smartcrop",
+  "description": "",
+  "homepage":    "https://alex.blog/wordpress-plugins/smartcrop/",
+  "type":        "wordpress-plugin",
+  "keywords":    ["wordpress", "plugin", "thumbnails"],
+  "license":     "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "Alex Mills (Viper007Bond)",
+      "homepage": "https://alex.blog/"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/Viper007Bond/smartcrop/issues"
+  },
+  "require": {
+    "php": ">=5.2.4",
+    "composer/installers": "~1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.5",
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+    "wp-coding-standards/wpcs": "^0.14.0",
+    "sirbrillig/phpcs-variable-analysis": "^2.0",
+    "wimg/php-compatibility": "^8.1",
+    "poststatus/wptest": "^1.5"
+  }
+}
