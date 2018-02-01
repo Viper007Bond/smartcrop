@@ -1,0 +1,3 @@
+[submodule "includes/smartcrop"]
+	path = includes/smartcrop
+	url = https://github.com/xymak/smartcrop.php.git
