@@ -128,7 +128,7 @@ class SmartCrop {
 			return;
 		}
 
-		require_once __DIR__ . '/libraries/gschoppe/smart_crop.php';
+		require_once __DIR__ . '/includes/gschoppe/smart_crop.php';
 
 		$image = imagecreatefromjpeg( $fullsize );
 
