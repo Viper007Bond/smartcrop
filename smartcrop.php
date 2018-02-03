@@ -115,11 +115,6 @@ class SmartCrop {
 			return $metadata;
 		}
 
-		// The smartcrop.php library requires GD
-		if ( ! WP_Image_Editor_GD::test() ) {
-			return $metadata;
-		}
-
 		$thumbnail_sizes = $this->get_thumbnail_sizes();
 
 		foreach ( $metadata['sizes'] as $thumbnail_label => $thumbnail_details ) {
