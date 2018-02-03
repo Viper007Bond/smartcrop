@@ -128,53 +128,20 @@ class SmartCrop {
 			return;
 		}
 
-		require_once __DIR__ . '/includes/smartcrop/smartcrop.php';
+		require_once __DIR__ . '/includes/gschoppe/smart_crop.php';
 
-		$options = apply_filters(
-			'smartcrop_image_options',
-			array(
-				'width'    => $thumbnail_details['width'],
-				'height'   => $thumbnail_details['height'],
-				'debug'    => false,
-				'prescale' => false,
-			),
-			$thumbnail_label,
-			$thumbnail_details,
-			$attachment_id
-		);
+		$image = imagecreatefromjpeg( $fullsize );
 
-		$smartcrop   = new xymak\image\smartcrop( $fullsize, $options );
-		$resize_info = $smartcrop->analyse();
+		$smart_crop = new smart_crop( $image );
 
-		// Try to free up some memory.
-		imagedestroy( $smartcrop->oImg );
-		unset( $smartcrop );
-
-		if ( ! is_array( $resize_info['topCrop'] ) ) {
-			return;
-		}
-
-		$editor = wp_get_image_editor( $fullsize, array( 'methods' => array( 'crop', 'save' ) ) );
-		if ( is_wp_error( $editor ) ) {
-			return;
-		}
-
-		$cropped = $editor->crop(
-			(int) $resize_info['topCrop']['x'],
-			(int) $resize_info['topCrop']['y'],
-			(int) $resize_info['topCrop']['width'],
-			(int) $resize_info['topCrop']['height'],
-			(int) $thumbnail_details['width'],
-			(int) $thumbnail_details['height']
-		);
-
-		if ( is_wp_error( $cropped ) ) {
-			return;
-		}
+		$thumbnail = $smart_crop->get_resized( $thumbnail_details['width'], $thumbnail_details['height'] );
 
 		$filename = dirname( $fullsize ) . DIRECTORY_SEPARATOR . $thumbnail_details['file'];
 
-		$editor->save( $filename, $thumbnail_details['mime-type'] );
+		imagejpeg( $thumbnail, $filename, 82 );
+
+		imagedestroy( $image );
+		imagedestroy( $thumbnail );
 	}
 
 	/**
