@@ -8,7 +8,6 @@ Plugin URI:   https://alex.blog/wordpress-plugins/smartcrop/
 Version:      1.0.0
 Author:       Alex Mills (Viper007Bond)
 Author URI:   https://alex.blog/
-Text Domain:  smartcrop
 License:      GPL2
 License URI:  https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,6 +27,9 @@ You should have received a copy of the GNU General Public License
 along with SmartCrop. If not, see https://www.gnu.org/licenses/gpl-2.0.html.
 
 **************************************************************************/
+
+//require_once __DIR__ . '/includes/class-smartcrop-wp-image-editor-imagick.php';
+require_once __DIR__ . '/includes/class-smartcrop-wp-image-editor-gd.php';
 
 class SmartCrop {
 	/**
@@ -91,9 +93,21 @@ class SmartCrop {
 	 * @since 1.0.0
 	 */
 	public function setup() {
+		add_filter( 'wp_image_editors', array( $this, 'register_image_editors' ) );
+
 		add_filter( 'wp_generate_attachment_metadata', array( $this, 'queue_regeneration_of_cropped_thumbnails' ), 1, 2 );
 
 		add_action( 'smartcrop_process_thumbnail', array( $this, 'process_thumbnail' ), 10, 3 );
+	}
+
+	public function register_image_editors( $implementations ) {
+		return array_merge(
+			array(
+				//'SmartCrop_WP_Image_Editor_Imagick',
+				'SmartCrop_WP_Image_Editor_GD',
+			),
+			$implementations
+		);
 	}
 
 	public function queue_regeneration_of_cropped_thumbnails( $metadata, $attachment_id ) {
@@ -114,34 +128,49 @@ class SmartCrop {
 			}
 
 			// This process can take a while, so offload it to the cron to be done asynchronously.
-			wp_schedule_single_event( time() - 1, 'smartcrop_process_thumbnail', array( $attachment_id, $thumbnail_label, $thumbnail_details ) );
+			wp_schedule_single_event( time() - 1, 'smartcrop_process_thumbnail', array( $attachment_id, $thumbnail_details ) );
 		}
 
 		return $metadata;
 	}
 
-	public function process_thumbnail( $attachment_id, $thumbnail_label, $thumbnail_details ) {
-		@set_time_limit( 300 );
-
+	public function process_thumbnail( $attachment_id, $thumbnail_details ) {
 		$fullsize = get_attached_file( $attachment_id );
+
 		if ( false === $fullsize || ! file_exists( $fullsize ) ) {
-			return;
+			return new WP_Error(
+				'smartcrop_fullsize_not_found',
+				'The fullsize image file could not be found.',
+				array(
+					'fullsizepath'  => _wp_relative_upload_path( $fullsize ),
+					'attachment_id' => $attachment_id,
+				)
+			);
 		}
 
-		require_once __DIR__ . '/includes/gschoppe/smart_crop.php';
+		@set_time_limit( 300 );
 
-		$image = imagecreatefromjpeg( $fullsize );
+		$editor = wp_get_image_editor(
+			$fullsize,
+			array(
+				'smartcrop' => true,
+				'methods'   => array( 'resize' ),
+			)
+		);
 
-		$smart_crop = new smart_crop( $image );
+		if ( is_wp_error( $editor ) ) {
+			return $editor;
+		}
 
-		$thumbnail = $smart_crop->get_resized( $thumbnail_details['width'], $thumbnail_details['height'] );
+		$resize = $editor->resize( $thumbnail_details['width'], $thumbnail_details['height'], true );
+
+		if ( is_wp_error( $resize ) ) {
+			return $resize;
+		}
 
 		$filename = dirname( $fullsize ) . DIRECTORY_SEPARATOR . $thumbnail_details['file'];
 
-		imagejpeg( $thumbnail, $filename, 82 );
-
-		imagedestroy( $image );
-		imagedestroy( $thumbnail );
+		return $editor->save( $filename );
 	}
 
 	/**
