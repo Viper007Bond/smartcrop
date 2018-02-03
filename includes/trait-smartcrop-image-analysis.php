@@ -134,12 +134,12 @@ trait SmartCrop_Image_Analysis {
 	}
 
 	public function smartcrop_get_color_difference_via_euclidean_distance( $color_1, $color_2 ) {
-		$sumOfSquares = 0;
+		$sum_of_squares = 0;
 		foreach ( $color_1 as $key => $val ) {
-			$sumOfSquares += pow( ( $color_2[ $key ] - $val ), 2 );
+			$sum_of_squares += pow( ( $color_2[ $key ] - $val ), 2 );
 		}
 
-		$distance = sqrt( $sumOfSquares );
+		$distance = sqrt( $sum_of_squares );
 
 		// Divide by 10 to put it in similar range to entropy numbers.
 		return $distance / 10;
