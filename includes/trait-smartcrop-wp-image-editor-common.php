@@ -68,8 +68,6 @@ trait SmartCrop_WP_Image_Editor_Common {
 
 		list( $x, $y ) = $this->smartcrop_get_crop_coordinates( $thumb_w, $thumb_h );
 
-		var_dump( 'coords', $x, $y );
-
 		return array( 0, 0, $x, $y, $thumb_w, $thumb_h, $thumb_w, $thumb_h );
 	}
 

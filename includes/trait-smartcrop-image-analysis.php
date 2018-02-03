@@ -71,8 +71,6 @@ trait SmartCrop_Image_Analysis {
 		list( $x, $x_weight ) = $this->smartcrop_find_best_slice( $slice_count, $weight, $average_color, 'vertical' );
 		list( $y, $y_weight ) = $this->smartcrop_find_best_slice( $slice_count, $weight, $average_color, 'horizontal' );
 
-		var_dump( 'focus', $average_color, $x, $x_weight, $y, $y_weight );
-
 		return array( $x, $y, $x_weight, $y_weight );
 	}
 
