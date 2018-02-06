@@ -10,13 +10,6 @@ trait SmartCrop_WP_Image_Editor_Common {
 	 */
 	public $sample;
 
-	public function __clone() {
-		$image_copy = imagecreatetruecolor( $this->size['width'], $this->size['height'] );
-		imagecopy( $image_copy, $this->image, 0, 0, 0, 0, $this->size['width'], $this->size['height'] );
-
-		$this->image = $image_copy;
-	}
-
 	public static function test( $args = array() ) {
 		if ( empty( $args['smartcrop'] ) || ! apply_filters( 'smartcrop_enabled', $args['smartcrop'] ) ) {
 			return false;

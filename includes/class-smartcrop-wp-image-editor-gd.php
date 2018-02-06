@@ -7,6 +7,13 @@ require_once __DIR__ . '/trait-smartcrop-wp-image-editor-common.php';
 class SmartCrop_WP_Image_Editor_GD extends WP_Image_Editor_GD {
 	use SmartCrop_WP_Image_Editor_Common;
 
+	public function __clone() {
+		$image_copy = imagecreatetruecolor( $this->size['width'], $this->size['height'] );
+		imagecopy( $image_copy, $this->image, 0, 0, 0, 0, $this->size['width'], $this->size['height'] );
+
+		$this->image = $image_copy;
+	}
+
 	public function smartcrop_filter_smooth( $smoothness ) {
 		imagefilter( $this->image, IMG_FILTER_SMOOTH, $smoothness );
 	}
