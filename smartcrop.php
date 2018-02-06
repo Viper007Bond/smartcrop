@@ -94,12 +94,19 @@ class SmartCrop {
 	 */
 	public function setup() {
 		add_filter( 'wp_image_editors', array( $this, 'register_image_editors' ) );
-
 		add_filter( 'wp_generate_attachment_metadata', array( $this, 'queue_regeneration_of_cropped_thumbnails' ), 1, 2 );
-
 		add_action( 'smartcrop_process_thumbnail', array( $this, 'process_thumbnail' ), 10, 3 );
 	}
 
+	/**
+	 * Registers this plugin's cropping image editor classes with WordPress.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $implementations List of available image editors.
+	 *
+	 * @return array Modified list of available image editors.
+	 */
 	public function register_image_editors( $implementations ) {
 		return array_merge(
 			array(
@@ -110,6 +117,17 @@ class SmartCrop {
 		);
 	}
 
+	/**
+	 * Schedules WP Cron events for each cropped thumbnail image.
+	 * This is because the smart cropping functionality can be slow.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $metadata      An array of attachment meta data.
+	 * @param int   $attachment_id The attachment ID.
+	 *
+	 * @return array The unmodified attachment meta data.
+	 */
 	public function queue_regeneration_of_cropped_thumbnails( $metadata, $attachment_id ) {
 		if ( ! is_array( $metadata['sizes'] ) ) {
 			return $metadata;
@@ -129,6 +147,16 @@ class SmartCrop {
 		return $metadata;
 	}
 
+	/**
+	 * Processes a single cropped thumbnail size for an attachment.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param int   $attachment_id     The attachment ID.
+	 * @param array $thumbnail_details An array of thumbnail details.
+	 *
+	 * @return array|WP_Error Array of saved file details, or a WP_Error object.
+	 */
 	public function process_thumbnail( $attachment_id, $thumbnail_details ) {
 		$fullsize = get_attached_file( $attachment_id );
 
@@ -170,6 +198,8 @@ class SmartCrop {
 
 	/**
 	 * Returns an array of all thumbnail sizes, including their label, size, and crop setting.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return array An array, with the thumbnail label as the key and an array of thumbnail properties (width, height, crop).
 	 */

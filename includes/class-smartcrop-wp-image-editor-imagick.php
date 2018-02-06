@@ -1,20 +1,42 @@
 <?php
+/**
+ * Imagick implementation of the SmartCrop Image Editor.
+ *
+ * @package SmartCrop
+ * @since   1.0.0
+ */
 
 require_once ABSPATH . WPINC . '/class-wp-image-editor.php';
 require_once ABSPATH . WPINC . '/class-wp-image-editor-imagick.php';
 require_once __DIR__ . '/trait-smartcrop-wp-image-editor-common.php';
 
+/**
+ * Imagick-specific methods for SmartCrop functionality.
+ *
+ * @see  WP_Image_Editor_GD
+ * @uses SmartCrop_WP_Image_Editor_Common
+ * @uses SmartCrop_Image_Analysis
+ */
 class SmartCrop_WP_Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 	use SmartCrop_WP_Image_Editor_Common;
 
+	/**
+	 * Makes a separate, distinct copy of the `image` Imagick object for when this class is cloned.
+	 */
 	public function __clone() {
 		$this->image = clone $this->image;
 	}
 
+	/**
+	 * @see SmartCrop_Image_Analysis::smartcrop_get_entropy_for_region()
+	 */
 	public function smartcrop_filter_smooth( $smoothness ) {
 		$this->image->medianFilterImage( $smoothness );
 	}
 
+	/**
+	 * @see SmartCrop_Image_Analysis::smartcrop_get_average_rgb_color_for_region()
+	 */
 	public function smartcrop_get_average_rgb_color_for_region( $src_x, $src_y, $src_w, $src_h ) {
 		$region = clone $this->image;
 		$region->cropImage( $src_w, $src_h, $src_x, $src_y );
@@ -35,6 +57,9 @@ class SmartCrop_WP_Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 		);
 	}
 
+	/**
+	 * @see SmartCrop_Image_Analysis::smartcrop_get_entropy_for_region()
+	 */
 	public function smartcrop_get_entropy_for_region( $src_x, $src_y, $src_w, $src_h ) {
 		$region = clone $this->image;
 		$region->cropImage( $src_w, $src_h, $src_x, $src_y );

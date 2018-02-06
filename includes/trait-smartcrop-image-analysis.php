@@ -1,14 +1,67 @@
 <?php
+/**
+ * SmartCrop image analysis trait.
+ *
+ * @package SmartCrop
+ * @since   1.0.0
+ */
 
+/**
+ * Trait for methods for image analysis in order to smartly crop.
+ *
+ * @since 1.0.0
+ */
 trait SmartCrop_Image_Analysis {
+	/**
+	 * Stores the image width and height. Here for IDE code completion.
+	 *
+	 * @var null|array {'width'=>int, 'height'=>int}
+	 */
 	protected $size = null;
 
+	/**
+	 * Smooths the current image.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @abstract
+	 *
+	 * @param int $smoothness Amount of smoothness to apply.
+	 */
 	abstract public function smartcrop_filter_smooth( $smoothness );
 
+	/**
+	 * Get the average red, green, and blue values for a region of the image.
+	 *
+	 * @param int $src_x The upper left x position of the crop region.
+	 * @param int $src_y The upper left y position of the crop region.
+	 * @param int $src_w The width of the region.
+	 * @param int $src_h The height of the region.
+	 *
+	 * @return array Returned array matches return value for `imagecolorsforindex()`.
+	 */
 	abstract public function smartcrop_get_average_rgb_color_for_region( $src_x, $src_y, $src_w, $src_h );
 
+	/**
+	 * Get the entry for a region of the image.
+	 *
+	 * @param int $src_x The upper left x coordinate of the crop region.
+	 * @param int $src_y The upper left y coordinate of the crop region.
+	 * @param int $src_w The width of the region.
+	 * @param int $src_h The height of the region.
+	 *
+	 * @return float The amount of entropy for the region.
+	 */
 	abstract public function smartcrop_get_entropy_for_region( $src_x, $src_y, $src_w, $src_h );
 
+	/**
+	 * Get the crop coordinates for the most interesting part of the image.
+	 *
+	 * @param int $dest_w New width in pixels.
+	 * @param int $dest_h New height in pixels.
+	 *
+	 * @return array First item is the x coordinate, the second item is the y coordinate.
+	 */
 	public function smartcrop_get_crop_coordinates( $dest_w, $dest_h ) {
 		list( $focus_x, $focus_y, $focus_x_weight, $focus_y_weight ) = $this->smartcrop_get_focal_point();
 
@@ -58,6 +111,15 @@ trait SmartCrop_Image_Analysis {
 		return array( $x, $y );
 	}
 
+	/**
+	 * Finds the coordinates of the most interesting part of the image.
+	 *
+	 * @param int   $slice_count Number of slides to slice the image up into. More is slower but more accurate.
+	 * @param float $weight      Weight between entropy method (0) and color method (1) to use to find the most
+	 *                           interesting part. Defaults to 0.5.
+	 *
+	 * @return array The x and y coordinates, followed by which direction is more interesting.
+	 */
 	public function smartcrop_get_focal_point( $slice_count = 20, $weight = 0.5 ) {
 		// Smooth the image a little to help reduce the effects of noise.
 		$this->smartcrop_filter_smooth( 7 );
@@ -72,6 +134,18 @@ trait SmartCrop_Image_Analysis {
 		return array( $x, $y, $x_weight, $y_weight );
 	}
 
+	/**
+	 * Slices the image up into pieces and analyzes each slice to determine which is the best.
+	 *
+	 * @param int    $slice_count       Number of slides to slice the image up into. More is slower but more accurate.
+	 * @param float  $weight            Weight between entropy method (0) and color method (1) to use to find the most
+	 *                                  interesting part. Defaults to 0.5.
+	 * @param array  $average_color_lab Average image color in lab color space format.
+	 * @param string $slice_direction   Whether to slice "vertical" or "horizontal".
+	 *
+	 * @return array First item is the coordinate of the center of the best slice,
+	 *               the second item is which direction is more interesting.
+	 */
 	public function smartcrop_find_best_slice( $slice_count, $weight, $average_color_lab, $slice_direction ) {
 		if ( 'vertical' === $slice_direction ) {
 			$slice_width  = floor( $this->size['width'] / $slice_count );
@@ -104,8 +178,17 @@ trait SmartCrop_Image_Analysis {
 				// A weight of 0 means color is ignored.
 				$slice_color = 0;
 			} else {
-				$slice_average_color_rgb = $this->smartcrop_get_average_rgb_color_for_region( $slice_x, $slice_y, $slice_width, $slice_height );
-				$slice_color             = $this->smartcrop_get_color_difference_via_euclidean_distance( $average_color_lab, $this->smartcrop_color_rgb_to_lab( $slice_average_color_rgb ) );
+				$slice_average_color_rgb = $this->smartcrop_get_average_rgb_color_for_region(
+					$slice_x,
+					$slice_y,
+					$slice_width,
+					$slice_height
+				);
+
+				$slice_color = $this->smartcrop_get_color_difference_via_euclidean_distance(
+					$average_color_lab,
+					$this->smartcrop_color_rgb_to_lab( $slice_average_color_rgb )
+				);
 			}
 
 			// Entropy
@@ -131,6 +214,14 @@ trait SmartCrop_Image_Analysis {
 		return array( $center, $slice_weight );
 	}
 
+	/**
+	 * Gets the difference between two colors via Euclidean distance.
+	 *
+	 * @param array $color_1 A color in lab color space format.
+	 * @param array $color_2 A color in lab color space format.
+	 *
+	 * @return float|int The color difference.
+	 */
 	public function smartcrop_get_color_difference_via_euclidean_distance( $color_1, $color_2 ) {
 		$sum_of_squares = 0;
 		foreach ( $color_1 as $key => $val ) {
@@ -143,6 +234,14 @@ trait SmartCrop_Image_Analysis {
 		return $distance / 10;
 	}
 
+	/**
+	 * Gets which direction from the best slice is more interesting.
+	 *
+	 * @param array $slices     The image slices.
+	 * @param int   $best_slice The best slice's array key.
+	 *
+	 * @return int
+	 */
 	public function smartcrop_get_slice_weight( $slices, $best_slice ) {
 		$slice_count = count( $slices );
 
@@ -179,6 +278,14 @@ trait SmartCrop_Image_Analysis {
 		return 0;
 	}
 
+	/**
+	 * Converts a color in RGB format to lab format.
+	 * No, I don't understand how this works either.
+	 *
+	 * @param array $color Array matching the return value for `imagecolorsforindex()`.
+	 *
+	 * @return array
+	 */
 	public function smartcrop_color_rgb_to_lab( $color ) {
 		list( $r, $g, $b ) = array_map( function ( $color ) {
 			$color = $color / 255;

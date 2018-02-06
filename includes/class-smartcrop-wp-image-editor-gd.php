@@ -1,12 +1,28 @@
 <?php
+/**
+ * GD implementation of the SmartCrop Image Editor.
+ *
+ * @package SmartCrop
+ * @since   1.0.0
+ */
 
 require_once ABSPATH . WPINC . '/class-wp-image-editor.php';
 require_once ABSPATH . WPINC . '/class-wp-image-editor-gd.php';
 require_once __DIR__ . '/trait-smartcrop-wp-image-editor-common.php';
 
+/**
+ * GD-specific methods for SmartCrop functionality.
+ *
+ * @see  WP_Image_Editor_GD
+ * @uses SmartCrop_WP_Image_Editor_Common
+ * @uses SmartCrop_Image_Analysis
+ */
 class SmartCrop_WP_Image_Editor_GD extends WP_Image_Editor_GD {
 	use SmartCrop_WP_Image_Editor_Common;
 
+	/**
+	 * Makes a separate, distinct copy of the `image` GD resource for when this class is cloned.
+	 */
 	public function __clone() {
 		$image_copy = imagecreatetruecolor( $this->size['width'], $this->size['height'] );
 		imagecopy( $image_copy, $this->image, 0, 0, 0, 0, $this->size['width'], $this->size['height'] );
@@ -14,10 +30,16 @@ class SmartCrop_WP_Image_Editor_GD extends WP_Image_Editor_GD {
 		$this->image = $image_copy;
 	}
 
+	/**
+	 * @see SmartCrop_Image_Analysis::smartcrop_get_entropy_for_region()
+	 */
 	public function smartcrop_filter_smooth( $smoothness ) {
 		imagefilter( $this->image, IMG_FILTER_SMOOTH, $smoothness );
 	}
 
+	/**
+	 * @see SmartCrop_Image_Analysis::smartcrop_get_average_rgb_color_for_region()
+	 */
 	public function smartcrop_get_average_rgb_color_for_region( $src_x, $src_y, $src_w, $src_h ) {
 		$pixel = imagecreatetruecolor( 1, 1 );
 
@@ -30,6 +52,9 @@ class SmartCrop_WP_Image_Editor_GD extends WP_Image_Editor_GD {
 		return $average_color;
 	}
 
+	/**
+	 * @see SmartCrop_Image_Analysis::smartcrop_get_entropy_for_region()
+	 */
 	public function smartcrop_get_entropy_for_region( $src_x, $src_y, $src_w, $src_h ) {
 		$region = imagecreatetruecolor( $src_w, $src_h );
 		imagecopy( $region, $this->image, 0, 0, $src_x, $src_y, $src_w, $src_h );

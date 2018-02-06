@@ -1,15 +1,51 @@
 <?php
+/**
+ * SmartCrop Image Editor shared methods trait.
+ *
+ * @package SmartCrop
+ * @since   1.0.0
+ */
 
 require_once __DIR__ . '/trait-smartcrop-image-analysis.php';
 
+/**
+ * Trait for methods common to both image editors.
+ *
+ * @see WP_Image_Editor
+ * @see SmartCrop_Image_Analysis
+ *
+ * @since 1.0.0
+ */
 trait SmartCrop_WP_Image_Editor_Common {
 	use SmartCrop_Image_Analysis;
 
 	/**
+	 * An instance of an image editor that stores a smaller sample version
+	 * of the image that is used for analysis in order to speed up the process.
+	 *
+	 * @since 1.0.0
+	 *
 	 * @var SmartCrop_WP_Image_Editor_GD|SmartCrop_WP_Image_Editor_Imagick
 	 */
 	public $sample;
 
+	/**
+	 * Checks to see if the image editor should be used or not
+	 * via the "smartcrop" argument. If so, the parent editor's
+	 * test is also called to make sure that the needed library
+	 * functions are present and supported.
+	 *
+	 * @see   WP_Image_Editor_GD::test()
+	 * @see   WP_Image_Editor_Imagick::test()
+	 *
+	 * @since 1.0.0
+	 *
+	 * @static
+	 *
+	 * @param array $args
+	 *
+	 * @return bool
+	 */
 	public static function test( $args = array() ) {
 		if ( empty( $args['smartcrop'] ) || ! apply_filters( 'smartcrop_enabled', $args['smartcrop'] ) ) {
 			return false;
@@ -18,9 +54,26 @@ trait SmartCrop_WP_Image_Editor_Common {
 		return parent::test( $args );
 	}
 
+	/**
+	 * Resizes the current image.
+	 *
+	 * If cropping is disabled, then the normal parent method is called instead.
+	 * If enabled, then smart cropping is used.
+	 *
+	 * @see   WP_Image_Editor_GD::resize()
+	 * @see   WP_Image_Editor_Imagick::resize()
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  int|null $max_w Image width.
+	 * @param  int|null $max_h Image height.
+	 * @param  bool     $crop
+	 *
+	 * @return true|WP_Error
+	 */
 	public function resize( $max_w, $max_h, $crop = false ) {
 		// If not cropping or the thumbnail is the same aspect ratio as the original image, then normal resizing is needed.
-		if ( ! $crop || ( $max_w / $max_h ) === ( $this->size['width'] / $this->size['height'] ) ) {
+		if ( ! $crop || ! $max_w || ! $max_h || ( $max_w / $max_h ) === ( $this->size['width'] / $this->size['height'] ) ) {
 			return parent::resize( $max_w, $max_h, $crop );
 		}
 
@@ -49,10 +102,44 @@ trait SmartCrop_WP_Image_Editor_Common {
 		return $resize_result;
 	}
 
+	/**
+	 * Resizes current image without any smart cropping.
+	 *
+	 * At minimum, either a height or width must be provided.
+	 * If one of the two is set to null, the resize will
+	 * maintain aspect ratio according to the provided dimension.
+	 *
+	 * @see   WP_Image_Editor_GD::resize()
+	 * @see   WP_Image_Editor_Imagick::resize()
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  int|null $max_w Image width.
+	 * @param  int|null $max_h Image height.
+	 * @param  bool     $crop
+	 *
+	 * @return true|WP_Error
+	 */
 	public function smartcrop_normal_resize( $max_w, $max_h, $crop = false ) {
 		return parent::resize( $max_w, $max_h, $crop );
 	}
 
+	/**
+	 * Smartly calculates where and how the image should be cropped.
+	 *
+	 * @see   image_resize_dimensions()
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param null|mixed $input
+	 * @param int        $orig_w Original width in pixels.
+	 * @param int        $orig_h Original height in pixels.
+	 * @param int        $dest_w New width in pixels.
+	 * @param int        $dest_h New height in pixels.
+	 * @param bool|array $crop   Whether to crop image to specified width and height or resize.
+	 *
+	 * @return array Returned array matches parameters for `imagecopyresampled()`.
+	 */
 	public function smartcrop_calculate_image_resize_coordinates( $input, $orig_w, $orig_h, $dest_w, $dest_h, $crop ) {
 		if ( ! $crop || ! $this->sample ) {
 			return $input;
@@ -81,10 +168,23 @@ trait SmartCrop_WP_Image_Editor_Common {
 
 		$crop_w = (int) round( $new_w / $size_ratio );
 		$crop_h = (int) round( $new_h / $size_ratio );
-		
+
 		return array( 0, 0, $orig_x, $orig_y, $new_w, $new_h, $crop_w, $crop_h );
 	}
 
+	/**
+	 * Works similarly to `wp_constrain_dimensions()` except that
+	 * the dimensions are no smaller than the minimum size.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param int $current_width  Current width of the image.
+	 * @param int $current_height Current height of the image.
+	 * @param int $minimum_width  Optional. Min width in pixels to constrain to.
+	 * @param int $minimum_height Optional. Min height in pixels to constrain to.
+	 *
+	 * @return array First item is the width, the second item is the height.
+	 */
 	public function smartcrop_contrain_dimensions_outside_box( $current_width, $current_height, $minimum_width, $minimum_height ) {
 		$width_ratio = $height_ratio = 1.0;
 		$did_width   = $did_height = false;
