@@ -12,8 +12,8 @@ trait SmartCrop_Image_Analysis {
 	public function smartcrop_get_crop_coordinates( $dest_w, $dest_h ) {
 		list( $focus_x, $focus_y, $focus_x_weight, $focus_y_weight ) = $this->smartcrop_get_focal_point();
 
-		// If the presize is wider than the desired width, then crop the side(s).
-		if ( $this->size['width'] > $dest_w ) {
+		// Is the image wider than it is tall?
+		if ( $this->size['width'] / $this->size['height'] >= $dest_w / $dest_h ) {
 			$y = 0;
 
 			// Which side of the focal point is more interesting?
@@ -59,8 +59,6 @@ trait SmartCrop_Image_Analysis {
 	}
 
 	public function smartcrop_get_focal_point( $slice_count = 20, $weight = 0.5 ) {
-		// @TODO: Should we further shrink the image like the original does? $sample
-
 		// Smooth the image a little to help reduce the effects of noise.
 		$this->smartcrop_filter_smooth( 7 );
 
