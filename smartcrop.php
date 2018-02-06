@@ -28,7 +28,7 @@ along with SmartCrop. If not, see https://www.gnu.org/licenses/gpl-2.0.html.
 
 **************************************************************************/
 
-//require_once __DIR__ . '/includes/class-smartcrop-wp-image-editor-imagick.php';
+require_once __DIR__ . '/includes/class-smartcrop-wp-image-editor-imagick.php';
 require_once __DIR__ . '/includes/class-smartcrop-wp-image-editor-gd.php';
 
 class SmartCrop {
@@ -103,7 +103,7 @@ class SmartCrop {
 	public function register_image_editors( $implementations ) {
 		return array_merge(
 			array(
-				//'SmartCrop_WP_Image_Editor_Imagick',
+				'SmartCrop_WP_Image_Editor_Imagick',
 				'SmartCrop_WP_Image_Editor_GD',
 			),
 			$implementations
