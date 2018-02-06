@@ -9,6 +9,8 @@
 /**
  * Trait for methods for image analysis in order to smartly crop.
  *
+ * Based on code by Greg Schoppe: {@link https://github.com/gschoppe/PHP-Smart-Crop}
+ *
  * @since 1.0.0
  */
 trait SmartCrop_Image_Analysis {
