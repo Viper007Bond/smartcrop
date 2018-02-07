@@ -3,7 +3,7 @@
 **************************************************************************
 
 Plugin Name:  SmartCrop
-Description:
+Description:  Automatically crops image thumbnails based on their contents instead of just centering the crop.
 Plugin URI:   https://alex.blog/wordpress-plugins/smartcrop/
 Version:      1.0.0
 Author:       Alex Mills (Viper007Bond)
