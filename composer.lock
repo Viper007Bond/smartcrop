@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "37f24ce8150b865d82cc319ac71bec9c",
+    "content-hash": "1a2ae8f975f429a23394ba820c35d048",
     "packages": [
         {
             "name": "composer/installers",
@@ -1006,16 +1006,16 @@
         },
         {
             "name": "poststatus/wptest",
-            "version": "1.5.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/poststatus/wptest.git",
-                "reference": "841f3fea2991c2e5104de847da2182996962a24f"
+                "reference": "a72f8137a89c22b194b04350b9d9d9c1a153b76f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/poststatus/wptest/zipball/841f3fea2991c2e5104de847da2182996962a24f",
-                "reference": "841f3fea2991c2e5104de847da2182996962a24f",
+                "url": "https://api.github.com/repos/poststatus/wptest/zipball/a72f8137a89c22b194b04350b9d9d9c1a153b76f",
+                "reference": "a72f8137a89c22b194b04350b9d9d9c1a153b76f",
                 "shasum": ""
             },
             "type": "library",
@@ -1029,6 +1029,12 @@
                     "email": "manovotny@gmail.com",
                     "homepage": "http://manovotny.com",
                     "role": "Developer"
+                },
+                {
+                    "name": "Brian Krogsgard",
+                    "email": "brian@poststatus.com",
+                    "homepage": "https://poststatus.com/",
+                    "role": "Developer"
                 }
             ],
             "description": "WP Test - The Best Tests For WordPress.",
@@ -1041,7 +1047,7 @@
                 "unit tests",
                 "wordpress"
             ],
-            "time": "2014-09-10T03:08:59+00:00"
+            "time": "2017-02-05T16:19:21+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -1879,7 +1885,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "poststatus/wptest": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
