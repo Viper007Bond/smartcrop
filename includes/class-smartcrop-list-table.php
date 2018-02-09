@@ -14,7 +14,7 @@ class SmartCrop_List_Table extends WP_List_Table {
 		// Why do I have to do this?
 		$this->_column_headers = array( $this->get_columns(), array(), array(), $this->get_primary_column_name() );
 
-		$per_page = 10;
+		$per_page = 20;
 		$start    = ( $this->get_pagenum() - 1 ) * $per_page;
 
 		$cron_events = SmartCrop()->get_cron_events();
@@ -28,12 +28,10 @@ class SmartCrop_List_Table extends WP_List_Table {
 		}
 		$this->items = array_slice( $this->items, $start, $per_page );
 
-		$this->set_pagination_args(
-			array(
-				'total_items' => count( $cron_events ),
-				'per_page'    => $per_page,
-			)
-		);
+		$this->set_pagination_args( array(
+			'total_items' => count( $cron_events ),
+			'per_page'    => $per_page,
+		) );
 	}
 
 	public function get_columns() {
