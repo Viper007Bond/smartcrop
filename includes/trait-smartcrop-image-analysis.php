@@ -307,7 +307,7 @@ trait SmartCrop_Image_Analysis {
 
 		$l = $a = $b = 0;
 
-		if ( $y !== 0 ) {
+		if ( $y != 0 ) {
 			$l = 10 * sqrt( $y );
 			$a = 17.5 * ( ( 1.02 * $x ) - $y ) / sqrt( $y );
 			$b = 7 * ( $y - 0.847 * $z ) / sqrt( $y );
