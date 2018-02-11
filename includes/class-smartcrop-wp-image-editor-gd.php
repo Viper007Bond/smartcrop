@@ -31,7 +31,7 @@ class SmartCrop_WP_Image_Editor_GD extends WP_Image_Editor_GD {
 	}
 
 	/**
-	 * @see SmartCrop_Image_Analysis::smartcrop_get_entropy_for_region()
+	 * @see SmartCrop_Image_Analysis::smartcrop_filter_smooth()
 	 */
 	public function smartcrop_filter_smooth( $smoothness ) {
 		imagefilter( $this->image, IMG_FILTER_SMOOTH, $smoothness );
