@@ -33,10 +33,6 @@ require_once __DIR__ . '/includes/class-smartcrop-wp-image-editor-imagick.php';
 require_once __DIR__ . '/includes/class-smartcrop-wp-image-editor-gd.php';
 
 class SmartCrop {
-	public $menu_id;
-
-	public $cron_name = 'smartcrop_process_thumbnail';
-
 	/**
 	 * The single instance of this plugin.
 	 *
@@ -100,35 +96,7 @@ class SmartCrop {
 	public function setup() {
 		add_filter( 'wp_image_editors', array( $this, 'register_image_editors' ) );
 		add_filter( 'wp_generate_attachment_metadata', array( $this, 'queue_regeneration_of_cropped_thumbnails' ), 1, 2 );
-		add_action( $this->cron_name, array( $this, 'process_thumbnail' ), 10, 3 );
-
-		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
-	}
-
-	public function add_admin_menu() {
-		$this->menu_id = add_management_page(
-			__( 'SmartCrop', 'smartcrop' ),
-			__( 'SmartCrop', 'smartcrop' ),
-			'manage_options',
-			'smartcrop',
-			array( $this, 'tools_menu' )
-		);
-	}
-
-	public function tools_menu() {
-		require_once __DIR__ . '/includes/class-smartcrop-list-table.php';
-
-		echo '<div class="wrap">';
-		echo '<h1>' . esc_html__( 'SmartCrop', 'smartcrop' ) . '</h1>';
-
-		echo '<p>' . __( 'These are the thumbnails that are currently in the queue to be processed.', 'smartcrop' ) . '</p>';
-
-		$wp_list_table = new SmartCrop_List_Table();
-		$wp_list_table->prepare_items();
-
-		$wp_list_table->display();
-
-		echo '</div>';
+		add_action( 'smartcrop_process_thumbnail', array( $this, 'process_thumbnail' ), 10, 3 );
 	}
 
 	/**
@@ -257,39 +225,6 @@ class SmartCrop {
 		}
 
 		return $thumbnail_sizes;
-	}
-
-	public function get_cron_events() {
-		$crons  = _get_cron_array();
-		$events = array();
-
-		if ( empty( $crons ) ) {
-			return $events;
-		}
-
-		foreach ( $crons as $time => $cron ) {
-			foreach ( $cron as $hook => $dings ) {
-				// Only interested in this plugin's cron events
-				if ( $hook !== $this->cron_name ) {
-					continue;
-				}
-
-				foreach ( $dings as $sig => $data ) {
-					$events["$hook-$sig-$time"] = (object) array(
-						'hook'     => $hook,
-						'time'     => $time,
-						'sig'      => $sig,
-						'args'     => $data['args'],
-						'schedule' => $data['schedule'],
-						'interval' => isset( $data['interval'] ) ? $data['interval'] : null,
-					);
-
-				}
-			}
-		}
-
-		return $events;
-
 	}
 }
 
