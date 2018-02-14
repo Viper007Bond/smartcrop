@@ -1,0 +1,3 @@
+[submodule "tests/smartcrop-samples"]
+	path = tests/smartcrop-samples
+	url = https://github.com/muesli/smartcrop-samples.git
