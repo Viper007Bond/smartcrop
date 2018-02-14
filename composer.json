@@ -1,9 +1,9 @@
 {
   "name":        "viper007bond/smartcrop",
-  "description": "",
+  "description": "WordPress plugin that automatically crops image thumbnails based on their contents instead of just centering the crop.",
   "homepage":    "https://alex.blog/wordpress-plugins/smartcrop/",
   "type":        "wordpress-plugin",
-  "keywords":    ["wordpress", "plugin", "thumbnails"],
+  "keywords":    ["wordpress", "plugin", "thumbnails", "crop"],
   "license":     "GPL-2.0-or-later",
   "authors": [
     {
@@ -15,7 +15,7 @@
     "issues": "https://github.com/Viper007Bond/smartcrop/issues"
   },
   "require": {
-    "php": ">=5.2.4",
+    "php": ">=5.4",
     "composer/installers": "~1.0"
   },
   "require-dev": {
