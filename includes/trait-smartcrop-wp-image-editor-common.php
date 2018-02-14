@@ -169,7 +169,11 @@ trait SmartCrop_WP_Image_Editor_Common {
 		$crop_w = (int) round( $new_w / $size_ratio );
 		$crop_h = (int) round( $new_h / $size_ratio );
 
-		return array( 0, 0, $orig_x, $orig_y, $new_w, $new_h, $crop_w, $crop_h );
+		return apply_filters(
+			'smartcrop_calculate_image_resize_coordinates',
+			array( 0, 0, $orig_x, $orig_y, $new_w, $new_h, $crop_w, $crop_h ),
+			$this, $orig_w, $orig_h, $dest_w, $dest_h, $crop
+		);
 	}
 
 	/**
