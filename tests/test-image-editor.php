@@ -1,15 +1,49 @@
 <?php
 
-class SmartCrop_Test_Image_Editor extends WP_UnitTestCase {
-	public static $directory;
+require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
 
-	public static function wpSetUpBeforeClass( $factory ) {
-		self::$directory = __DIR__ . '/smartcrop-samples/smartcropjs/';
+class SmartCrop_Test_Image_Editor extends WP_UnitTestCase {
+
+	public static function wpTearDownAfterClass() {
+		$upload_dir = wp_get_upload_dir();
+		$upload_dir = $upload_dir['path'];
+
+		if ( is_dir( $upload_dir ) ) {
+			$filesystem = new WP_Filesystem_Direct( array() );
+			$filesystem->rmdir( trailingslashit( $upload_dir ), true );
+		}
+	}
+
+	public function helper_get_cron_event( $attachment_id, $size ) {
+		$crons = _get_cron_array();
+
+		if ( empty( $crons ) ) {
+			return false;
+		}
+
+		foreach ( $crons as $time => $cron ) {
+			foreach ( $cron as $hook => $dings ) {
+				if ( $hook !== 'smartcrop_process_thumbnail' ) {
+					continue;
+				}
+
+				foreach ( $dings as $sig => $data ) {
+					if ( $data['args'][0] != $attachment_id || $data['args'][1]['label'] != $size ) {
+						continue;
+					}
+
+					return $data['args'];
+				}
+			}
+		}
+
+		return false;
 	}
 
 	public function test_calculate_image_resize_coordinates() {
 		$editor = wp_get_image_editor(
-			self::$directory . '65210163.jpg',
+			DIR_TESTDATA . '/images/33772.jpg',
 			array(
 				'smartcrop' => true,
 				'methods'   => array( 'resize' ),
@@ -20,7 +54,7 @@ class SmartCrop_Test_Image_Editor extends WP_UnitTestCase {
 		$this->assertTrue( method_exists( $editor, 'smartcrop_calculate_image_resize_coordinates' ) );
 
 		$verify_coordinates = function ( $coordinates ) {
-			$this->assertSame( $coordinates, array( 0, 0, 0, 250, 150, 150, 646, 646 ) );
+			$this->assertSame( $coordinates, array( 0, 0, 834, 0, 150, 150, 1080, 1080 ) );
 
 			return $coordinates;
 		};
@@ -35,5 +69,29 @@ class SmartCrop_Test_Image_Editor extends WP_UnitTestCase {
 		$this->assertSame( $editor->get_size()['height'], 150 );
 
 		unset( $editor );
+	}
+
+	public function test_cron_and_cropping() {
+		$attachment_id = $this->factory->attachment->create_upload_object( DIR_TESTDATA . '/images/33772.jpg' );
+
+		$args = $this->helper_get_cron_event( $attachment_id, 'thumbnail' );
+		$this->assertNotFalse( $args );
+
+		$metadata = wp_get_attachment_metadata( $attachment_id );
+
+		$thumbnail = dirname( get_attached_file( $attachment_id ) ) . DIRECTORY_SEPARATOR . $metadata['sizes']['thumbnail']['file'];
+
+		$mtime = filemtime( $thumbnail );
+
+		// Ensure that enough time passes for filemtime() to change.
+		sleep( 1 );
+
+		$backup = dirname( $thumbnail ) . '/thumbnail-original.jpg';
+		copy( $thumbnail, $backup );
+
+		do_action_ref_array( 'smartcrop_process_thumbnail', $args );
+
+		$this->assertNotSame( $mtime, filemtime( $thumbnail ) );
+		$this->assertNotSame( file_get_contents( $backup ), file_get_contents( $thumbnail ) );
 	}
 }
