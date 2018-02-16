@@ -43,7 +43,7 @@ class SmartCrop_Test_Image_Editor extends WP_UnitTestCase {
 
 	public function test_calculate_image_resize_coordinates() {
 		$editor = wp_get_image_editor(
-			__DIR__ . '/images/33772.jpg',
+			DIR_TESTDATA . '/images/33772.jpg',
 			array(
 				'smartcrop' => true,
 				'methods'   => array( 'resize' ),
@@ -72,19 +72,19 @@ class SmartCrop_Test_Image_Editor extends WP_UnitTestCase {
 	}
 
 	public function test_cron_and_cropping_imagick() {
-		$this->helper_test_cron_and_cropping( 'SmartCrop_WP_Image_Editor_Imagick', 'imagick' );
+		$this->helper_test_cron_and_cropping( 'SmartCrop_WP_Image_Editor_Imagick' );
 	}
 
 	public function test_cron_and_cropping_gd() {
-		$this->helper_test_cron_and_cropping( 'SmartCrop_WP_Image_Editor_GD', 'gd' );
+		$this->helper_test_cron_and_cropping( 'SmartCrop_WP_Image_Editor_GD' );
 	}
 
-	public function helper_test_cron_and_cropping( $class, $filename_part ) {
+	public function helper_test_cron_and_cropping( $class ) {
 		$editor_filter = function ( $implementations ) use ( $class ) {
 			return array( $class );
 		};
 
-		$attachment_id = $this->factory->attachment->create_upload_object( __DIR__ . '/images/33772.jpg' );
+		$attachment_id = $this->factory->attachment->create_upload_object( DIR_TESTDATA . '/images/33772.jpg' );
 
 		$args = $this->helper_get_cron_event( $attachment_id, 'thumbnail' );
 		$this->assertNotFalse( $args );
@@ -96,7 +96,7 @@ class SmartCrop_Test_Image_Editor extends WP_UnitTestCase {
 		$mtime = filemtime( $thumbnail );
 
 		// Ensure that enough time passes for filemtime() to change.
-		sleep( 1 );
+		sleep( 2 );
 
 		$thumbnail_original = dirname( $thumbnail ) . '/thumbnail-original.jpg';
 		copy( $thumbnail, $thumbnail_original );
@@ -107,15 +107,5 @@ class SmartCrop_Test_Image_Editor extends WP_UnitTestCase {
 
 		$this->assertNotSame( $mtime, filemtime( $thumbnail ) );
 		$this->assertNotSame( file_get_contents( $thumbnail_original ), file_get_contents( $thumbnail ) );
-
-		$this->assertSame(
-			file_get_contents( $thumbnail_original ),
-			file_get_contents( __DIR__ . "/images/thumbnail-{$filename_part}-crop-center.jpg" )
-		);
-
-		$this->assertSame(
-			file_get_contents( $thumbnail ),
-			file_get_contents( __DIR__ . "/images/thumbnail-{$filename_part}-crop-smart.jpg" )
-		);
 	}
 }
