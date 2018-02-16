@@ -6,7 +6,7 @@
  * @since   1.0.0
  */
 
-require_once dirname( __FILE__ ) . '/trait-smartcrop-image-analysis.php';
+require_once __DIR__ . '/trait-smartcrop-image-analysis.php';
 
 /**
  * Trait for methods common to both image editors.

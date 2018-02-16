@@ -8,7 +8,7 @@
 
 require_once ABSPATH . WPINC . '/class-wp-image-editor.php';
 require_once ABSPATH . WPINC . '/class-wp-image-editor-gd.php';
-require_once dirname( __FILE__ ) . '/trait-smartcrop-wp-image-editor-common.php';
+require_once __DIR__ . '/trait-smartcrop-wp-image-editor-common.php';
 
 /**
  * GD-specific methods for SmartCrop functionality.

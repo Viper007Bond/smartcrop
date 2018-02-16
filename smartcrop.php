@@ -29,8 +29,8 @@ along with SmartCrop. If not, see https://www.gnu.org/licenses/gpl-2.0.html.
 
 **************************************************************************/
 
-require_once dirname( __FILE__ ) . '/includes/class-smartcrop-wp-image-editor-imagick.php';
-require_once dirname( __FILE__ ) . '/includes/class-smartcrop-wp-image-editor-gd.php';
+require_once __DIR__ . '/includes/class-smartcrop-wp-image-editor-imagick.php';
+require_once __DIR__ . '/includes/class-smartcrop-wp-image-editor-gd.php';
 
 class SmartCrop {
 	/**
