@@ -130,7 +130,7 @@ class SmartCrop {
 	 * @return array The unmodified attachment meta data.
 	 */
 	public function queue_regeneration_of_cropped_thumbnails( $metadata, $attachment_id ) {
-		if ( ! is_array( $metadata['sizes'] ) ) {
+		if ( empty( $metadata['sizes'] ) ) {
 			return $metadata;
 		}
 
