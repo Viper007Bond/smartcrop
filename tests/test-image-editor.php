@@ -72,10 +72,14 @@ class SmartCrop_Test_Image_Editor extends WP_UnitTestCase {
 	}
 
 	public function test_cron_and_cropping_imagick() {
+		$this->assertTrue( WP_Image_Editor_Imagick::test() );
+
 		$this->helper_test_cron_and_cropping( 'SmartCrop_WP_Image_Editor_Imagick' );
 	}
 
 	public function test_cron_and_cropping_gd() {
+		$this->assertTrue( WP_Image_Editor_GD::test() );
+
 		$this->helper_test_cron_and_cropping( 'SmartCrop_WP_Image_Editor_GD' );
 	}
 
