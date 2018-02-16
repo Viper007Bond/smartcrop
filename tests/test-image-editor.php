@@ -4,6 +4,7 @@ require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
 require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
 
 class SmartCrop_Test_Image_Editor extends WP_UnitTestCase {
+	public $class_to_test;
 
 	public static function wpTearDownAfterClass() {
 		$upload_dir = wp_get_upload_dir();
@@ -84,9 +85,7 @@ class SmartCrop_Test_Image_Editor extends WP_UnitTestCase {
 	}
 
 	public function helper_test_cron_and_cropping( $class ) {
-		$editor_filter = function ( $implementations ) use ( $class ) {
-			return array( $class );
-		};
+		$this->class_to_test = $class;
 
 		$attachment_id = $this->factory->attachment->create_upload_object( DIR_TESTDATA . '/images/33772.jpg' );
 
@@ -105,11 +104,15 @@ class SmartCrop_Test_Image_Editor extends WP_UnitTestCase {
 		$thumbnail_original = dirname( $thumbnail ) . '/thumbnail-original.jpg';
 		copy( $thumbnail, $thumbnail_original );
 
-		add_filter( 'wp_image_editors', $editor_filter, 99 );
+		add_filter( 'wp_image_editors', array( $this, 'helper_set_image_editor' ), 99 );
 		do_action_ref_array( 'smartcrop_process_thumbnail', $args );
-		remove_filter( 'wp_image_editors', $editor_filter );
+		remove_filter( 'wp_image_editors', array( $this, 'helper_set_image_editor' ) );
 
 		$this->assertNotSame( $mtime, filemtime( $thumbnail ) );
 		$this->assertNotSame( file_get_contents( $thumbnail_original ), file_get_contents( $thumbnail ) );
+	}
+
+	public function helper_set_image_editor( $implementations ) {
+		return array( $this->class_to_test );
 	}
 }
