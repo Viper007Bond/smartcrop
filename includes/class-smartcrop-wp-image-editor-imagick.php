@@ -65,7 +65,7 @@ class SmartCrop_WP_Image_Editor_Imagick extends WP_Image_Editor_Imagick {
 		$region->cropImage( $src_w, $src_h, $src_x, $src_y );
 
 		// Make the region a greyscale set of detected edges.
-		$region->convolveImage( array( - 1, - 1, - 1, - 1, 8, - 1, - 1, - 1, - 1 ) );
+		$region->edgeImage( 1 );
 		$region->modulateImage( 100, 0, 100 );
 
 		$histogram = $region->getImageHistogram();
