@@ -96,7 +96,7 @@ class SmartCrop_Test_Image_Editor extends WP_UnitTestCase {
 		$mtime = filemtime( $thumbnail );
 
 		// Ensure that enough time passes for filemtime() to change.
-		sleep( 2 );
+		sleep( 1 );
 
 		$thumbnail_original = dirname( $thumbnail ) . '/thumbnail-original.jpg';
 		copy( $thumbnail, $thumbnail_original );
