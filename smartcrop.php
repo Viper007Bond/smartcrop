@@ -8,7 +8,6 @@ Plugin URI:   https://alex.blog/wordpress-plugins/smartcrop/
 Version:      1.0.0
 Author:       Alex Mills (Viper007Bond)
 Author URI:   https://alex.blog/
-Text Domain:  smartcrop
 License:      GPL2
 License URI:  https://www.gnu.org/licenses/gpl-2.0.html
 
