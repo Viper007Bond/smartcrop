@@ -42,6 +42,9 @@ Want to smartly crop your past image uploads? You can use my [Regenerate Thumbna
 1. Sample source image.
 2. Default thumbnail cropping.
 3. Cropped thumbnail with SmartCrop enabled.
+4. Another sample source image.
+5. Default thumbnail cropping.
+6. Cropped thumbnail with SmartCrop enabled.
 
 == ChangeLog ==
 
